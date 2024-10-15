@@ -1,10 +1,14 @@
 #ifndef WAREHOUSE_H
 #define WAREHOUSE_H
 
-struct WarehouseCandidate {
+#include "node.h"
+
+struct Warehouse : public Node {
   int id;
   double capacity; // 仓库容量（单位：物资量）
-  double x, y;     // 地理坐标
+  Warehouse(int id, double capacity, double x, double y)
+      : Node(x, y, NodeType::WareHouse), id(id), capacity(capacity) {}
+  Warehouse() : Node() {}
 };
 
 #endif // WAREHOUSE_H

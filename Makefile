@@ -8,7 +8,7 @@ CXXFLAGS = -std=c++11 -O2
 TARGET = warehouse_location
 
 # 定义源文件
-SRCS = main.cpp utils.cpp kmeans.cpp findOptWarehouseLocs.cpp
+SRCS = main.cpp utils.cpp kmeans.cpp findOptWarehouseLocs.cpp vehicle.cpp
 
 # 如果有 customer.cpp 和 warehouse.cpp，请取消注释以下两行
 # SRCS += customer.cpp
