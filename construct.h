@@ -26,21 +26,6 @@ public:
     // 初始化操作（如果需要）
   }
 
-  // 添加未访问的节点
-  void unvisit_node_push(Node *nd) {
-    index_unvisit_node[nd] = unvisit_node.size();
-    unvisit_node.push_back(nd);
-  }
-
-  // 移除未访问的节点
-  void unvisit_node_pop(const int nd) {
-    int index = index_unvisit_node[nd];
-    index_unvisit_node[unvisit_node.back()] = index;
-    index_unvisit_node[nd] = -1;
-    unvisit_node[index] = unvisit_node.back();
-    unvisit_node.pop_back();
-  }
-
   // 创建新的车辆路径（保证容量约束已满足）
   void new_vehicle(Vehicle &veh, const std::vector<Node *> &node_seq) {
     for (auto nd : node_seq) {
@@ -166,7 +151,7 @@ public:
   // 计算插入节点后的车辆成本
   bool cal_veh_cost(const std::vector<Node *> &node_seq,
                     Customer *customer_insert, const size_t index,
-                    const short int veh_type, double &cost) {
+                    const VehicleType veh_type, double &cost) {
     Vehicle veh;
     if (new_vehicle(veh, node_seq, customer_insert, index) == false) {
       return false;
@@ -181,7 +166,7 @@ public:
 
   // 构造节点序列
   void contruct_node_seq(std::vector<Node *> &node_seq,
-                         const short int veh_type) {
+                         const VehicleType veh_type) {
     node_seq.clear();
     while (!unvisit_node.empty()) {
       Node *best_nd;
@@ -189,8 +174,7 @@ public:
       double min_cost;
       bool has_valid_node = false;
 
-      for (size_t i = 0; i < unvisit_node.size(); ++i) {
-        Node *nd = unvisit_node[i];
+      for (auto nd : unvisit_node) {
         for (size_t j = 0; j <= node_seq.size(); ++j) {
           double cost;
           if (cal_veh_cost(node_seq, static_cast<Customer *>(nd), j, veh_type,
@@ -206,7 +190,7 @@ public:
       }
 
       if (has_valid_node) {
-        unvisit_node_pop(best_nd);
+        unvisit_node.erase(best_nd);
         node_seq.push_back(0);
         for (size_t i = node_seq.size(); i-- > best_index + 1;) {
           node_seq[i] = node_seq[i - 1];
@@ -214,14 +198,14 @@ public:
         node_seq[best_index] = best_nd;
       } else {
         for (auto nd : node_seq) {
-          unvisit_node_push(nd);
+          unvisit_node.insert(nd);
         }
         return;
       }
     }
 
     for (auto nd : node_seq) {
-      unvisit_node_push(nd);
+      unvisit_node.insert(nd);
     }
   }
 
@@ -235,7 +219,7 @@ public:
       Vehicle veh_IVECO;
 
       // 构建 IVECO 车辆的节点序列
-      contruct_node_seq(node_seq_IVECO, IVECO);
+      contruct_node_seq(node_seq_IVECO, veh_type);
       if (!node_seq_IVECO.empty()) {
         new_vehicle(veh_IVECO, node_seq_IVECO);
       }
@@ -248,9 +232,12 @@ public:
     }
   }
 
+  void travel_nodes_in_period(std::vector<Node *> node_seq) {}
+
 private:
   // 私有成员变量
   std::set<Node *> unvisit_node;
+  VehicleType veh_type;
 
   // 以下变量需要在类中定义或在构造函数中传入
   // 例如：
